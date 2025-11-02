@@ -1,1 +1,27 @@
+name: Deploy Website to Azure VM
 
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy Website Files to Server
+        run: |
+          scp -o StrictHostKeyChecking=no -r ./website cloudproject@${{ secrets.SERVER_IP }}:/home/cloudproject/
+
+      - name: Run Deployment Script on Server
+        run: |
+          ssh -o StrictHostKeyChecking=no cloudproject@${{ secrets.SERVER_IP }} 'bash /home/cloudproject/setup_webserver.sh'
