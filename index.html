@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Time Hack - Nigerian Air Force</title>
+    <style>
+      :root {
+        --clock-size: min(70vmin, 400px);
+      }
+
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: #0d1117;
+        color: #6cc9ff;
+        font-family: "Courier New", monospace;
+        overflow: hidden;
+      }
+
+      /* Heading */
+      h1 {
+        color: #6cc9ff;
+        font-size: 28px;
+        margin-bottom: 20px;
+        text-align: center;
+        text-shadow:
+          0 0 10px #6cc9ff,
+          0 0 20px #3399ff;
+        z-index: 2;
+      }
+
+      .clock {
+        position: relative;
+        width: var(--clock-size);
+        height: var(--clock-size);
+        aspect-ratio: 1 / 1;
+        border: 8px solid #6cc9ff;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.7);
+        box-shadow:
+          0 0 25px rgba(108, 201, 255, 0.5),
+          inset 0 0 40px rgba(108, 201, 255, 0.3);
+      }
+
+      /* Logo inside the clock */
+      .logo {
+        position: absolute;
+        width: 65%;
+        opacity: 0.9;
+        filter: drop-shadow(0 0 8px #6cc9ff);
+        z-index: 0;
+      }
+
+      /* Hands */
+      .hand {
+        position: absolute;
+        left: 50%;
+        bottom: 50%;
+        transform: translateX(-50%) rotate(0deg);
+        transform-origin: bottom center;
+        background: #6cc9ff;
+        border-radius: 5px;
+        z-index: 2;
+      }
+      .hour {
+        width: 8px;
+        height: calc(var(--clock-size) * 0.22);
+      }
+      .minute {
+        width: 4px;
+        height: calc(var(--clock-size) * 0.32);
+      }
+      .second {
+        width: 2px;
+        height: calc(var(--clock-size) * 0.4);
+        background: #ff4747;
+      }
+
+      .center-dot {
+        width: 14px;
+        height: 14px;
+        background: #6cc9ff;
+        border-radius: 50%;
+        position: absolute;
+        z-index: 3;
+      }
+
+      /* Numbers */
+      .number {
+        position: absolute;
+        font-size: 22px;
+        font-weight: bold;
+        color: #6cc9ff;
+        transform: translate(-50%, -50%);
+        user-select: none;
+        pointer-events: none;
+        z-index: 1;
+        text-shadow:
+          0 0 5px #6cc9ff,
+          0 0 10px #3399ff;
+      }
+
+      /* Digital clock */
+      .digital {
+        margin-top: 22px;
+        text-align: center;
+      }
+      .digital div {
+        margin: 6px 0;
+        font-size: 28px;
+        text-shadow:
+          0 0 8px #6cc9ff,
+          0 0 16px #3399ff;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Heading -->
+    <h1>Time Hack - Smile 360 Dental Specialists</h1>
+
+    <div class="clock" id="clock">
+      <!-- Nigerian Air Force logo inside -->
+      <img src="SM360.png" class="logo" alt="NAF Logo" />
+
+      <!-- Hands -->
+      <div class="hand hour" id="hour"></div>
+      <div class="hand minute" id="minute"></div>
+      <div class="hand second" id="second"></div>
+      <div class="center-dot"></div>
+    </div>
+
+    <div class="digital">
+      <div id="day"></div>
+      <div id="date"></div>
+      <div id="time"></div>
+    </div>
+
+    <script>
+      function layoutNumbers() {
+        const clock = document.getElementById("clock");
+        clock.querySelectorAll(".number").forEach((n) => n.remove());
+
+        const w = clock.clientWidth;
+        const h = clock.clientHeight;
+        const cx = w / 2;
+        const cy = h / 2;
+        const padding = 32;
+        const r = Math.min(w, h) / 2 - padding;
+
+        for (let n = 1; n <= 12; n++) {
+          const theta = (n / 12) * 2 * Math.PI - Math.PI / 2;
+          const x = cx + r * Math.cos(theta);
+          const y = cy + r * Math.sin(theta);
+
+          const el = document.createElement("div");
+          el.className = "number";
+          el.textContent = n;
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
+          clock.appendChild(el);
+        }
+      }
+
+      function updateClock() {
+        const now = new Date();
+        const s = now.getSeconds();
+        const m = now.getMinutes();
+        const h = now.getHours();
+
+        const sDeg = s * 6;
+        const mDeg = m * 6 + s * 0.1;
+        const hDeg = (h % 12) * 30 + m * 0.5;
+
+        document.getElementById("second").style.transform =
+          `translateX(-50%) rotate(${sDeg}deg)`;
+        document.getElementById("minute").style.transform =
+          `translateX(-50%) rotate(${mDeg}deg)`;
+        document.getElementById("hour").style.transform =
+          `translateX(-50%) rotate(${hDeg}deg)`;
+
+        const days = [
+          "SUNDAY",
+          "MONDAY",
+          "TUESDAY",
+          "WEDNESDAY",
+          "THURSDAY",
+          "FRIDAY",
+          "SATURDAY",
+        ];
+        document.getElementById("day").textContent = days[now.getDay()];
+        document.getElementById("date").textContent =
+          now.toLocaleDateString("en-GB");
+        document.getElementById("time").textContent =
+          now.toLocaleTimeString("en-GB");
+      }
+
+      layoutNumbers();
+      updateClock();
+      setInterval(updateClock, 1000);
+      window.addEventListener("resize", layoutNumbers);
+    </script>
+  </body>
+</html>
