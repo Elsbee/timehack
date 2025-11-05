@@ -1,1 +1,49 @@
+name: Auto-Deploy Static Website to Azure
 
+on:
+  # Allows manual runs from the GitHub UI
+  workflow_dispatch:
+  
+  # Runs the workflow whenever a push is made to the 'main' branch
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # Environment variables can be defined here for easy access in scripts
+    env:
+      AZURE_RG_NAME: group5_chioma
+      AZURE_LOCATION: westeurope
+
+    steps:
+      - name: Checkout code
+        # Fetches your repository code so the scripts are available
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          # Uses the secrets you configured in GitHub repository settings
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+          
+      - name: Set script permissions
+        # Makes the shell scripts executable
+        run: |
+          chmod +x scripts/deploy-infrastructure.sh
+          chmod +x scripts/deploy-website.sh
+
+      - name: Deploy Infrastructure
+        # Runs the script to create/update Azure resources (e.g., Storage Account)
+        run: ./scripts/deploy-infrastructure.sh
+        shell: bash
+
+      - name: Deploy Website
+        # Runs the script to upload your static files
+        run: ./scripts/deploy-website.sh
+        shell: bash
+
+      - name: Azure Logout (Optional but Recommended)
+        run: az logout
